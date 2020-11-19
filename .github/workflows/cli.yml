@@ -30,7 +30,7 @@ jobs:
       with:
         tag_name: ${{ steps.build.outputs.version }}
         release_name: ${{ steps.build.outputs.type }} ${{ steps.build.outputs.version }}
-        draft: ${{ steps.build.outputs.type == "dev"}}
+        draft: contains(steps.build.outputs.type, "dev")
         prerelease: false
     - name: Upload Release Asset
       id: upload-release-asset 
