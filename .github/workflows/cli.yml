@@ -32,8 +32,7 @@ jobs:
         release_name: ${{ steps.build.outputs.type }} ${{ steps.build.outputs.version }}
         draft: contains(steps.build.outputs.type, "dev")
         prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset 
+    - name: Upload Named Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,4 +40,13 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./dist/${{ steps.build.outputs.filename }}
         asset_name: ${{ steps.build.outputs.filename }}
+        asset_content_type: application/javascript
+    - name: Upload Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/${{ steps.build.outputs.latest_filename }}
+        asset_name: ${{ steps.build.outputs.latest_filename }}
         asset_content_type: application/javascript

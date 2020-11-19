@@ -14,8 +14,9 @@ const generate = () => {
 	const when = new Date();
 
 	const filename = `${name}@${version}-${type}.js`;
+	const latest_filename = `${name}@latest.js`;
 
-	return {dev, type, filename, when, on, version};
+	return {dev, type, filename, latest_filename, when, on, version};
 };
 
 const build = generate();
@@ -43,10 +44,10 @@ module.exports = {
 					(compilation, callback) => {
 						let output = fs.readFileSync(path.resolve(dist, build.filename), "utf8");
 						let license = fs.readFileSync(path.resolve(__dirname, "LICENSE"), "utf8");
-						fs.writeFileSync(path.resolve(dist, `${name}@latest.js`), `/*\n${license}*/\n\n${output}`);
+						fs.writeFileSync(path.resolve(dist, build.latest_filename), `/*\n${license}*/\n\n${output}`);
 
 						console.log(`\nwrote to ${build.filename}...`);
-						console.log(`and wrote to ${name}@latest.js...\n`);
+						console.log(`and wrote to ${build.latest_filename}...\n`);
 
 						callback();
 					}
