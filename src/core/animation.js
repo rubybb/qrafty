@@ -1,8 +1,8 @@
-var Crafty = require('../core/core.js');
-
+//var Qrafty = require("../core/core.js");
+import Qrafty from "../core/core";
 
 /**@
- * #Crafty.easing
+ * #Qrafty.easing
  * @category Animation
  * @kind Class
  * 
@@ -17,7 +17,7 @@ var Crafty = require('../core/core.js');
  * @example
  * Here is how you might use easing functions with the "Tween" component.
  * ~~~~
- * var e = Crafty.e("2D, Tween");
+ * var e = Qrafty.e("2D, Tween");
  * // Use built-in easing functions
  * e.tween({x:100}, 1000, "smoothStep");
  * e.tween({y:100}, 1000, "easeInQuad");
@@ -27,7 +27,7 @@ var Crafty = require('../core/core.js');
  * @see Tween, SpriteAnimation
  */
 var easing = function(duration, easingFn) {
-	this.timePerFrame = 1000 / Crafty.timer.FPS();
+	this.timePerFrame = 1000 / Qrafty.timer.FPS();
 	this.duration = duration;   //default duration given in ms
 	if (typeof easingFn === "function"){
 		this.easing_function = easingFn;
@@ -119,4 +119,5 @@ easing.prototype = {
 	}
 };
 
-module.exports = easing;
+Qrafty.easing = easing;
+export default easing;

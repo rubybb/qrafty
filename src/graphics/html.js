@@ -1,5 +1,5 @@
-var Crafty = require('../core/core.js');
-
+//var Qrafty = require("../core/core.js");
+import Qrafty from "../core/core";
 
 /**@
  * #HTML
@@ -10,14 +10,14 @@ var Crafty = require('../core/core.js');
  *
  * Adding this to an entity will automatically add the `DOM` component.
  */
-Crafty.c("HTML", {
-    inner: '',
+Qrafty.c("HTML", {
+	inner: "",
 
-    init: function () {
-        this.requires('2D, DOM');
-    },
+	init: async function () {
+		await this.requires("2D, DOM");
+	},
 
-    /**@
+	/**@
      * #.replace
      * @comp HTML
      * @kind Method
@@ -30,18 +30,18 @@ Crafty.c("HTML", {
      * @example
      * Create a link
      * ~~~
-     * Crafty.e("HTML")
+     * Qrafty.e("HTML")
      *    .attr({x:20, y:20, w:100, h:100})
      *    .replace("<a href='index.html'>Index</a>");
      * ~~~
      */
-    replace: function (new_html) {
-        this.inner = new_html;
-        this._element.innerHTML = new_html;
-        return this;
-    },
+	replace: function (new_html) {
+		this.inner = new_html;
+		this._element.innerHTML = new_html;
+		return this;
+	},
 
-    /**@
+	/**@
      * #.append
      * @comp HTML
      * @kind Method
@@ -54,18 +54,18 @@ Crafty.c("HTML", {
      * @example
      * Create a link
      * ~~~
-     * Crafty.e("HTML")
+     * Qrafty.e("HTML")
      *    .attr({x:20, y:20, w:100, h:100})
      *    .append("<a href='index.html'>Index</a>");
      * ~~~
      */
-    append: function (new_html) {
-        this.inner += new_html;
-        this._element.innerHTML += new_html;
-        return this;
-    },
+	append: function (new_html) {
+		this.inner += new_html;
+		this._element.innerHTML += new_html;
+		return this;
+	},
 
-    /**@
+	/**@
      * #.prepend
      * @comp HTML
      * @kind Method
@@ -78,14 +78,14 @@ Crafty.c("HTML", {
      * @example
      * Create a link
      * ~~~
-     * Crafty.e("HTML")
+     * Qrafty.e("HTML")
      *    .attr({x:20, y:20, w:100, h:100})
      *    .prepend("<a href='index.html'>Index</a>");
      * ~~~
      */
-    prepend: function (new_html) {
-        this.inner = new_html + this.inner;
-        this._element.innerHTML = new_html + this.inner;
-        return this;
-    }
+	prepend: function (new_html) {
+		this.inner = new_html + this.inner;
+		this._element.innerHTML = new_html + this.inner;
+		return this;
+	}
 });

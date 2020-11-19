@@ -1,4 +1,5 @@
-var Crafty = require('../core/core.js');
+//var Qrafty = require("../core/core.js");
+import Qrafty from "../core/core";
 
 /**@
  * #WebGL
@@ -18,19 +19,19 @@ var Crafty = require('../core/core.js');
  *
  * Create a webgl entity like this
  * ~~~
- * var myEntity = Crafty.e("2D, WebGL, Color")
+ * var myEntity = Qrafty.e("2D, WebGL, Color")
  *      .color(1, 1, 0, 0.5)
  *      .attr({x: 13, y: 37, w: 42, h: 42});
  *~~~
  */
 
-Crafty.extend({
-    /**@
-     * #Crafty.WebGLShader
+Qrafty.extend({
+	/**@
+     * #Qrafty.WebGLShader
      * @category Graphics
      * @kind Method
      * 
-     * @sign public Crafty.WebGLShader Crafty.WebGLShader(String vertexShaderCode, String fragmentShaderCode, Array attributeList, Function drawCallback(e, entity))
+     * @sign public Qrafty.WebGLShader Qrafty.WebGLShader(String vertexShaderCode, String fragmentShaderCode, Array attributeList, Function drawCallback(e, entity))
      * @param vertexShaderCode - GLSL code for the vertex shader
      * @param fragmentShaderCode - GLSL code for the fragment shader
      * @param attributeList - List of variable names with their vertex length
@@ -45,7 +46,7 @@ Crafty.extend({
      * Let's say we want to extend sprite to draw the images in grayscale when we
      * set a `grayscale: true` attribute.
      * ~~~
-     * var recoloredSprite = new Crafty.WebGLShader(
+     * var recoloredSprite = new Qrafty.WebGLShader(
      *   // The vertex shader
      *   "attribute vec2 aPosition;\n" +
      *   "attribute vec3 aOrientation;\n" +
@@ -109,28 +110,28 @@ Crafty.extend({
      * );
      * ~~~
      *
-     * It seems like a lot of work, but most of the above code is the default Crafty shader code.
+     * It seems like a lot of work, but most of the above code is the default Qrafty shader code.
      * When you get the hang of it, it is really easy to extend for your own effects. And remember
      * you only need to write it once, and suddenly all sprite entities have extra effects available.
      *
-     * @see Crafty.defaultShader
+     * @see Qrafty.defaultShader
      * @see Sprite
      * @see Image
      * @see Color
      * @see WebGL
      */
-    WebGLShader: function(vertexCode, fragmentCode, attributeList, drawCallback){
-        this.vertexCode = vertexCode;
-        this.fragmentCode = fragmentCode;
-        this.attributeList = attributeList;
-        this.drawCallback = drawCallback;
-    },
-    /**@
-     * #Crafty.defaultShader
+	WebGLShader: function(vertexCode, fragmentCode, attributeList, drawCallback){
+		this.vertexCode = vertexCode;
+		this.fragmentCode = fragmentCode;
+		this.attributeList = attributeList;
+		this.drawCallback = drawCallback;
+	},
+	/**@
+     * #Qrafty.defaultShader
      * @category Graphics
      * @kind Method
      * 
-     * @sign public Crafty.WebGLShader Crafty.defaultShader(String component[, Crafty.WebGLShader shader])
+     * @sign public Qrafty.WebGLShader Qrafty.defaultShader(String component[, Qrafty.WebGLShader shader])
      * @param component - Name of the component to assign a default shader to
      * @param shader - New default shader to assign to a component
      *
@@ -143,60 +144,60 @@ Crafty.extend({
      * Let's say we want to set the grayscale enabled shader from the example of the WebGLShader
      * as default for sprites:
      * ~~~
-     * Crafty.defaultShader("Sprite", recoloredSprite);
+     * Qrafty.defaultShader("Sprite", recoloredSprite);
      * ~~~
      *
-     * @see Crafty.WebGLShader
+     * @see Qrafty.WebGLShader
      * @see Sprite
      * @see Image
      * @see Color
      * @see WebGL
      */
-    defaultShader: function(component, shader) {
-        this._defaultShaders = (this._defaultShaders || {});
-        if (arguments.length === 1 ){
-            return this._defaultShaders[component];
-        }
-        this._defaultShaders[component] = shader;
-    },
+	defaultShader: function(component, shader) {
+		this._defaultShaders = (this._defaultShaders || {});
+		if (arguments.length === 1 ){
+			return this._defaultShaders[component];
+		}
+		this._defaultShaders[component] = shader;
+	},
 
 });
 
-Crafty.c("WebGL", {
-    /**@
+Qrafty.c("WebGL", {
+	/**@
      * #.context
      * @comp WebGL
      * @kind Property
      *
      * The webgl context this entity will be rendered to.
      */
-    init: function () {
-        this.requires("Renderable");
-        // Attach to webgl layer
-        if (!this._customLayer){
-            this._attachToLayer( Crafty.s("DefaultWebGLLayer") );
-        }
-    },
+	init: async function () {
+		await this.requires("Renderable");
+		// Attach to webgl layer
+		if (!this._customLayer){
+			this._attachToLayer( Qrafty.s("DefaultWebGLLayer") );
+		}
+	},
  
-    remove: function(){
-        this._detachFromLayer();
-    },
+	remove: function(){
+		this._detachFromLayer();
+	},
 
-    // Cache the various objects and arrays used in draw
-    drawVars: {
-        type: "webgl",
-        pos: {},
-        ctx: null,
-        coord: [0, 0, 0, 0],
-        co: {
-            x: 0,
-            y: 0,
-            w: 0,
-            h: 0
-        }
-    },
+	// Cache the various objects and arrays used in draw
+	drawVars: {
+		type: "webgl",
+		pos: {},
+		ctx: null,
+		coord: [0, 0, 0, 0],
+		co: {
+			x: 0,
+			y: 0,
+			w: 0,
+			h: 0
+		}
+	},
 
-    /**@
+	/**@
      * #.draw
      * @comp WebGL
      * @kind Method
@@ -206,79 +207,79 @@ Crafty.c("WebGL", {
      *
      * An internal method to draw the entity on the webgl canvas element. Rather then rendering directly, it writes relevent information into a buffer to allow batch rendering.
      */
-    draw: function () {
+	draw: function () {
 
-        if (!this.ready) return;
+		if (!this.ready) return;
 
-        var pos = this.drawVars.pos;
-        pos._x = this._x;
-        pos._y = this._y;
-        pos._w = this._w;
-        pos._h = this._h;
+		var pos = this.drawVars.pos;
+		pos._x = this._x;
+		pos._y = this._y;
+		pos._w = this._w;
+		pos._h = this._h;
 
-        var coord = this.__coord || [0, 0, 0, 0];
-        var co = this.drawVars.co;
-        co.x = coord[0];
-        co.y = coord[1];
-        co.w = coord[2];
-        co.h = coord[3];
+		var coord = this.__coord || [0, 0, 0, 0];
+		var co = this.drawVars.co;
+		co.x = coord[0];
+		co.y = coord[1];
+		co.w = coord[2];
+		co.h = coord[3];
 
-        // Handle flipX, flipY
-        // (Just swap the positions of e.g. x and x+w)
-        if (this._flipX ) {
-           co.x = co.x + co.w;
-           co.w = - co.w;
-        }
-        if (this._flipY ) {
-           co.y = co.y + co.h;
-           co.h = - co.h;
-        }
+		// Handle flipX, flipY
+		// (Just swap the positions of e.g. x and x+w)
+		if (this._flipX ) {
+			co.x = co.x + co.w;
+			co.w = - co.w;
+		}
+		if (this._flipY ) {
+			co.y = co.y + co.h;
+			co.h = - co.h;
+		}
 
-        //Draw entity
-        var gl = this._drawContext;
-        this.drawVars.gl = gl;
-        var prog = this.drawVars.program = this.program;
+		//Draw entity
+		var gl = this._drawContext;
+		this.drawVars.gl = gl;
+		var prog = this.drawVars.program = this.program;
 
-        // The program might need to refer to the current element's index
-        prog.setCurrentEntity(this);
+		// The program might need to refer to the current element's index
+		prog.setCurrentEntity(this);
 
-        // Write position; x, y, w, h
-        prog.writeVector("aPosition",
-            this._x, this._y,
-            this._x , this._y + this._h,
-            this._x + this._w, this._y,
-            this._x + this._w, this._y + this._h
-        );
+		// Write position; x, y, w, h
+		prog.writeVector("aPosition",
+			this._x, this._y,
+			this._x , this._y + this._h,
+			this._x + this._w, this._y,
+			this._x + this._w, this._y + this._h
+		);
 
-        // Write orientation
-        prog.writeVector("aOrientation",
-            this._origin.x + this._x,
-            this._origin.y + this._y,
-            this._rotation * Math.PI / 180
-        );
+		// Write orientation
+		prog.writeVector("aOrientation",
+			this._origin.x + this._x,
+			this._origin.y + this._y,
+			this._rotation * Math.PI / 180
+		);
 
-        // Write z, alpha
-        prog.writeVector("aLayer",
-            this._globalZ,
-            this._alpha
-        );
+		// Write z, alpha
+		prog.writeVector("aLayer",
+			this._globalZ,
+			this._alpha
+		);
 
-        // This should only need to handle *specific* attributes!
-        this.trigger("Draw", this.drawVars);
+		// This should only need to handle *specific* attributes!
+		this.trigger("Draw", this.drawVars);
 
-        // Register the vertex groups to be drawn, referring to this entities position in the big buffer
-        prog.addIndices(prog.ent_offset);
+		// Register the vertex groups to be drawn, referring to this entities position in the big buffer
+		prog.addIndices(prog.ent_offset);
 
-        return this;
-    },
+		return this;
+	},
 
-    // v_src is optional, there's a default vertex shader that works for regular rectangular entities
-    _establishShader: function(compName, shader){
-        this.program = this._drawLayer.getProgramWrapper(compName, shader);
+	// v_src is optional, there's a default vertex shader that works for regular rectangular entities
+	_establishShader: function(compName, shader){
+		this.program = this._drawLayer.getProgramWrapper(compName, shader);
 
-        // Needs to know where in the big array we are!
-        this.program.registerEntity(this);
-        // Shader program means ready
-        this.ready = true;
-    }
+		// Needs to know where in the big array we are!
+		this.program.registerEntity(this);
+		// Shader program means ready
+		this.ready = true;
+	}
 });

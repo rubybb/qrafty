@@ -1,5 +1,5 @@
-var Crafty = require('../core/core.js');
-
+//var Qrafty = require("../core/core.js");
+import Qrafty from "../core/core";
 
 /**@
  * #Text
@@ -27,124 +27,124 @@ var Crafty = require('../core/core.js');
  *
  * @note If you use canvas text with glyphs that are taller than standard letters, portions of the glyphs might be cut off.
  */
-Crafty.c("Text", {
-    _text: "",
-    defaultSize: "10px",
-    defaultFamily: "sans-serif",
-    defaultVariant: "normal",
-    defaultLineHeight: "normal",
-    defaultTextAlign: "left",
-    ready: true,
+Qrafty.c("Text", {
+	_text: "",
+	defaultSize: "10px",
+	defaultFamily: "sans-serif",
+	defaultVariant: "normal",
+	defaultLineHeight: "normal",
+	defaultTextAlign: "left",
+	ready: true,
 
-    init: function () {
-        this.requires("2D");
-        this._textFont = {
-            "type": "",
-            "weight": "",
-            "size": this.defaultSize,
-            "lineHeight":this.defaultLineHeight,
-            "family": this.defaultFamily,
-            "variant": this.defaultVariant
-        };
-        this._textAlign = this.defaultTextAlign;
-    },
+	init: async function () {
+		await this.requires("2D");
+		this._textFont = {
+			"type": "",
+			"weight": "",
+			"size": this.defaultSize,
+			"lineHeight":this.defaultLineHeight,
+			"family": this.defaultFamily,
+			"variant": this.defaultVariant
+		};
+		this._textAlign = this.defaultTextAlign;
+	},
 
-    events: {
-        "Draw": function (e) {
-            var font = this._fontString();
+	events: {
+		"Draw": function (e) {
+			var font = this._fontString();
 
-            if (e.type === "DOM") {
-                var el = this._element,
-                    style = el.style;
+			if (e.type === "DOM") {
+				var el = this._element,
+					style = el.style;
 
-                style.color = this._textColor;
-                style.font = font;
-                style.textAlign = this._textAlign;
-                el.innerHTML = this._text;
-            } else if (e.type === "canvas") {
-                var context = e.ctx;
+				style.color = this._textColor;
+				style.font = font;
+				style.textAlign = this._textAlign;
+				el.innerHTML = this._text;
+			} else if (e.type === "canvas") {
+				var context = e.ctx;
 
-                context.save();
+				context.save();
 
-                context.textBaseline = "top";
-                context.fillStyle = this._textColor || "rgb(0,0,0)";
-                context.font = font;
-                context.textAlign = this._textAlign;
+				context.textBaseline = "top";
+				context.fillStyle = this._textColor || "rgb(0,0,0)";
+				context.font = font;
+				context.textAlign = this._textAlign;
 
-                context.fillText(this._text, e.pos._x, e.pos._y);
+				context.fillText(this._text, e.pos._x, e.pos._y);
 
-                context.restore();
-            }
-        },
+				context.restore();
+			}
+		},
 
-        // type, weight, size, family, lineHeight, and variant.
-        // For a few hardcoded css properties, set the internal definitions
-        "SetStyle": function(propertyName) {
-            // could check for DOM component, but this event should only be fired by such an entity!
-            // Rather than triggering Invalidate on each of these, we rely on css() triggering that event 
-            switch(propertyName) {
-                case "textAlign": 
-                    this._textAlign = this._element.style.textAlign;
-                    break;
-                case "color":
-                    // Need to set individual color components, so use method
-                    this.textColor(this._element.style.color);
-                    break;
-                case "fontType":
-                    this._textFont.type = this._element.style.fontType;
-                    break;
-                case "fontWeight":
-                    this._textFont.weight = this._element.style.fontWeight;
-                    break;
-                case "fontSize":
-                    this._textFont.size = this._element.style.fontSize;
-                    break;
-                case "fontFamily":
-                    this._textFont.family = this._element.style.fontFamily;
-                    break;
-                case "fontVariant":
-                    this._textFont.variant = this._element.style.fontVariant;
-                    break;
-                case "lineHeight":
-                    this._textFont.lineHeight = this._element.style.lineHeight;
-                    break;
-            }
+		// type, weight, size, family, lineHeight, and variant.
+		// For a few hardcoded css properties, set the internal definitions
+		"SetStyle": function(propertyName) {
+			// could check for DOM component, but this event should only be fired by such an entity!
+			// Rather than triggering Invalidate on each of these, we rely on css() triggering that event 
+			switch(propertyName) {
+			case "textAlign": 
+				this._textAlign = this._element.style.textAlign;
+				break;
+			case "color":
+				// Need to set individual color components, so use method
+				this.textColor(this._element.style.color);
+				break;
+			case "fontType":
+				this._textFont.type = this._element.style.fontType;
+				break;
+			case "fontWeight":
+				this._textFont.weight = this._element.style.fontWeight;
+				break;
+			case "fontSize":
+				this._textFont.size = this._element.style.fontSize;
+				break;
+			case "fontFamily":
+				this._textFont.family = this._element.style.fontFamily;
+				break;
+			case "fontVariant":
+				this._textFont.variant = this._element.style.fontVariant;
+				break;
+			case "lineHeight":
+				this._textFont.lineHeight = this._element.style.lineHeight;
+				break;
+			}
            
-        }
-    },
+		}
+	},
 
-    remove: function(){
-        // Clean up the dynamic text update
-        this.unbind(this._textUpdateEvent, this._dynamicTextUpdate);
-    },
+	remove: function(){
+		// Clean up the dynamic text update
+		this.unbind(this._textUpdateEvent, this._dynamicTextUpdate);
+	},
 
-    // takes a CSS font-size string and gets the height of the resulting font in px
-    _getFontHeight: (function(){
-        // regex for grabbing the first string of letters
-        var re = /([a-zA-Z]+)\b/;
-        // From the CSS spec.  "em" and "ex" are undefined on a canvas.
-        var multipliers = {
-            "px": 1,
-            "pt": 4/3,
-            "pc": 16,
-            "cm": 96/2.54,
-            "mm": 96/25.4,
-            "in": 96,
-            "em": undefined,
-            "ex": undefined
-        };
-        return function (font){
-            var number = parseFloat(font);
-            var match = re.exec(font);
-            var unit =  match ? match[1] : "px";
-            if (multipliers[unit] !== undefined)
-                return Math.ceil(number * multipliers[unit]);
-            else
-                return Math.ceil(number);
-        };
-    })(),
+	// takes a CSS font-size string and gets the height of the resulting font in px
+	_getFontHeight: (function(){
+		// regex for grabbing the first string of letters
+		var re = /([a-zA-Z]+)\b/;
+		// From the CSS spec.  "em" and "ex" are undefined on a canvas.
+		var multipliers = {
+			"px": 1,
+			"pt": 4/3,
+			"pc": 16,
+			"cm": 96/2.54,
+			"mm": 96/25.4,
+			"in": 96,
+			"em": undefined,
+			"ex": undefined
+		};
+		return function (font){
+			var number = parseFloat(font);
+			var match = re.exec(font);
+			var unit =  match ? match[1] : "px";
+			if (multipliers[unit] !== undefined)
+				return Math.ceil(number * multipliers[unit]);
+			else
+				return Math.ceil(number);
+		};
+	})(),
 
-    /**@
+	/**@
      * #.text
      * @comp Text
      * @kind Method
@@ -168,36 +168,36 @@ Crafty.c("Text", {
      *
      * @example
      * ~~~
-     * Crafty.e("2D, DOM, Text").attr({ x: 100, y: 100 }).text("Look at me!!");
+     * Qrafty.e("2D, DOM, Text").attr({ x: 100, y: 100 }).text("Look at me!!");
      *
-     * Crafty.e("2D, DOM, Text").attr({ x: 100, y: 100 })
+     * Qrafty.e("2D, DOM, Text").attr({ x: 100, y: 100 })
      *     .text(function () { return "My position is " + this._x });
      *
-     * Crafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text("Look at me!!");
+     * Qrafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text("Look at me!!");
      *
-     * Crafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 })
+     * Qrafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 })
      *     .text(function () { return "My position is " + this._x });
      * ~~~
      */
-    _textGenerator: null,
-    text: function (text, eventData) {
-        if (!(typeof text !== "undefined" && text !== null)) return this._text;
-        if (typeof (text) === "function"){
-            this._text = text.call(this, eventData);
-            this._textGenerator = text;
-        } else {
-            this._text = text;
-            this._textGenerator = null;
-        }
+	_textGenerator: null,
+	text: function (text, eventData) {
+		if (!(typeof text !== "undefined" && text !== null)) return this._text;
+		if (typeof (text) === "function"){
+			this._text = text.call(this, eventData);
+			this._textGenerator = text;
+		} else {
+			this._text = text;
+			this._textGenerator = null;
+		}
 
-        if (this.has("Canvas") )
-            this._resizeForCanvas();
+		if (this.has("Canvas") )
+			this._resizeForCanvas();
 
-        this.trigger("Invalidate");
-        return this;
-    },
+		this.trigger("Invalidate");
+		return this;
+	},
 
-    /**@
+	/**@
      * #.dynamicTextGeneration
      * @comp Text
      * @kind Method
@@ -217,53 +217,53 @@ Crafty.c("Text", {
      *
      * @example
      * ~~~
-     * Crafty.e("2D, DOM, Text, Motion").attr({ x: 100, y: 100, vx: 10 })
+     * Qrafty.e("2D, DOM, Text, Motion").attr({ x: 100, y: 100, vx: 10 })
      *     .text(function () { return "My position is " + this._x })
      *     .dynamicTextGeneration(true)
      * ~~~
      * The above example will update the text with the entities position as it changes.
      */
-    _dynamicTextOn: false,
-    _textUpdateEvent: null,
-    _dynamicTextUpdate: function(eventData) {
-        if (!this._textGenerator) return;
-        this.text(this._textGenerator, eventData);
-    },
-    dynamicTextGeneration: function(dynamicTextOn, textUpdateEvent) {
-        this.unbind(this._textUpdateEvent, this._dynamicTextUpdate);
-        if (dynamicTextOn) {
-            this._textUpdateEvent = textUpdateEvent || "UpdateFrame";
-            this.bind(this._textUpdateEvent, this._dynamicTextUpdate);
-        }
-        return this;
-    },
+	_dynamicTextOn: false,
+	_textUpdateEvent: null,
+	_dynamicTextUpdate: function(eventData) {
+		if (!this._textGenerator) return;
+		this.text(this._textGenerator, eventData);
+	},
+	dynamicTextGeneration: function(dynamicTextOn, textUpdateEvent) {
+		this.unbind(this._textUpdateEvent, this._dynamicTextUpdate);
+		if (dynamicTextOn) {
+			this._textUpdateEvent = textUpdateEvent || "UpdateFrame";
+			this.bind(this._textUpdateEvent, this._dynamicTextUpdate);
+		}
+		return this;
+	},
 
-    // Calculates the height and width of text on the canvas
-    // Width is found by using the canvas measureText function
-    // Height is only estimated -- it calculates the font size in pixels, and sets the height to 110% of that.
-    _resizeForCanvas: function(){
-        var ctx = this._drawContext;
-        ctx.font = this._fontString();
-        this.w = ctx.measureText(this._text).width;
+	// Calculates the height and width of text on the canvas
+	// Width is found by using the canvas measureText function
+	// Height is only estimated -- it calculates the font size in pixels, and sets the height to 110% of that.
+	_resizeForCanvas: function(){
+		var ctx = this._drawContext;
+		ctx.font = this._fontString();
+		this.w = ctx.measureText(this._text).width;
 
-        var size = (this._textFont.size || this.defaultSize);
-        this.h = 1.1 * this._getFontHeight(size);
+		var size = (this._textFont.size || this.defaultSize);
+		this.h = 1.1 * this._getFontHeight(size);
 
-        /* Offset the MBR for text alignment*/
-        if (this._textAlign === 'left' || this._textAlign === 'start') {
-            this.offsetBoundary(0, 0, 0, 0);
-        } else if (this._textAlign === 'center') {
-            this.offsetBoundary(this.w/2, 0, -this.w/2, 0);
-        } else if (this._textAlign === 'end' || this._textAlign === 'right') {
-            this.offsetBoundary(this.w, 0, -this.w, 0);
-        }
-    },
+		/* Offset the MBR for text alignment*/
+		if (this._textAlign === "left" || this._textAlign === "start") {
+			this.offsetBoundary(0, 0, 0, 0);
+		} else if (this._textAlign === "center") {
+			this.offsetBoundary(this.w/2, 0, -this.w/2, 0);
+		} else if (this._textAlign === "end" || this._textAlign === "right") {
+			this.offsetBoundary(this.w, 0, -this.w, 0);
+		}
+	},
 
-    // Returns the font string to use
-    _fontString: function(){
-        return this._textFont.type + ' ' + this._textFont.variant  + ' ' + this._textFont.weight + ' ' + this._textFont.size  + ' / ' + this._textFont.lineHeight + ' ' + this._textFont.family;
-    },
-    /**@
+	// Returns the font string to use
+	_fontString: function(){
+		return this._textFont.type + " " + this._textFont.variant  + " " + this._textFont.weight + " " + this._textFont.size  + " / " + this._textFont.lineHeight + " " + this._textFont.family;
+	},
+	/**@
      * #.textColor
      * @comp Text
      * @kind Method
@@ -277,25 +277,25 @@ Crafty.c("Text", {
      *
      * @example
      * ~~~
-     * Crafty.e("2D, DOM, Text").attr({ x: 100, y: 100 }).text("Look at me!!")
+     * Qrafty.e("2D, DOM, Text").attr({ x: 100, y: 100 }).text("Look at me!!")
      *   .textColor('#FF0000');
      *
-     * Crafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text('Look at me!!')
+     * Qrafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text('Look at me!!')
      *   .textColor('rgba(0, 255, 0, 0.5)');
      *
-     * Crafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text('Look at me!!')
+     * Qrafty.e("2D, Canvas, Text").attr({ x: 100, y: 100 }).text('Look at me!!')
      *   .textColor('white');
      * ~~~
-     * @see Crafty.assignColor
+     * @see Qrafty.assignColor
      */
-    textColor: function (color) {
-        Crafty.assignColor(color, this);
-        this._textColor = "rgba(" + this._red + ", " + this._green + ", " + this._blue + ", " + this._strength + ")";
-        this.trigger("Invalidate");
-        return this;
-    },
+	textColor: function (color) {
+		Qrafty.assignColor(color, this);
+		this._textColor = "rgba(" + this._red + ", " + this._green + ", " + this._blue + ", " + this._strength + ")";
+		this.trigger("Invalidate");
+		return this;
+	},
 
-    /**@
+	/**@
      * #.textAlign
      * @comp Text
      * @kind Method
@@ -305,15 +305,15 @@ Crafty.c("Text", {
      *
      * Change the alignment of the text. Valid values are 'start', 'end, 'left', 'center', or 'right'.
      */
-    textAlign: function(alignment) {
-        this._textAlign = alignment;
-        if (this.has("Canvas"))
-            this._resizeForCanvas();
-        this.trigger("Invalidate");
-        return this;
-    },
+	textAlign: function(alignment) {
+		this._textAlign = alignment;
+		if (this.has("Canvas"))
+			this._resizeForCanvas();
+		this.trigger("Invalidate");
+		return this;
+	},
 
-    /**@
+	/**@
      * #.textFont
      * @comp Text
      * @kind Method
@@ -332,40 +332,40 @@ Crafty.c("Text", {
      *
      * @example
      * ~~~
-     * Crafty.e("2D, DOM, Text").textFont({ type: 'italic', family: 'Arial' });
-     * Crafty.e("2D, Canvas, Text").textFont({ size: '20px', weight: 'bold' });
+     * Qrafty.e("2D, DOM, Text").textFont({ type: 'italic', family: 'Arial' });
+     * Qrafty.e("2D, Canvas, Text").textFont({ size: '20px', weight: 'bold' });
      *
-     * Crafty.e("2D, Canvas, Text").textFont("type", "italic");
-     * Crafty.e("2D, Canvas, Text").textFont("type"); // italic
+     * Qrafty.e("2D, Canvas, Text").textFont("type", "italic");
+     * Qrafty.e("2D, Canvas, Text").textFont("type"); // italic
      * ~~~
      */
-    textFont: function (key, value) {
-        if (arguments.length === 1) {
-            //if just the key, return the value
-            if (typeof key === "string") {
-                return this._textFont[key];
-            }
+	textFont: function (key, value) {
+		if (arguments.length === 1) {
+			//if just the key, return the value
+			if (typeof key === "string") {
+				return this._textFont[key];
+			}
 
-            if (typeof key === "object") {
-                for (var propertyKey in key) {
-                    if(propertyKey === 'family'){
-                        this._textFont[propertyKey] = "'" + key[propertyKey] + "'";
-                    } else {
-                        this._textFont[propertyKey] = key[propertyKey];
-                    }
-                }
-            }
-        } else {
-            this._textFont[key] = value;
-        }
+			if (typeof key === "object") {
+				for (var propertyKey in key) {
+					if(propertyKey === "family"){
+						this._textFont[propertyKey] = "'" + key[propertyKey] + "'";
+					} else {
+						this._textFont[propertyKey] = key[propertyKey];
+					}
+				}
+			}
+		} else {
+			this._textFont[key] = value;
+		}
 
-        if (this.has("Canvas") )
-            this._resizeForCanvas();
+		if (this.has("Canvas") )
+			this._resizeForCanvas();
 
-        this.trigger("Invalidate");
-        return this;
-    },
-    /**@
+		this.trigger("Invalidate");
+		return this;
+	},
+	/**@
      * #.unselectable
      * @comp Text
      * @kind Method
@@ -381,24 +381,24 @@ Crafty.c("Text", {
      *
      * @example
      * ~~~
-     * Crafty.e("2D, DOM, Text").text('This text cannot be highlighted!').unselectable();
+     * Qrafty.e("2D, DOM, Text").text('This text cannot be highlighted!').unselectable();
      * ~~~
      */
-    unselectable: function () {
-        // http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting
-        if (this.has("DOM")) {
-            this.css({
-                '-webkit-touch-callout': 'none',
-                '-webkit-user-select': 'none',
-                '-khtml-user-select': 'none',
-                '-moz-user-select': 'none',
-                '-ms-user-select': 'none',
-                'user-select': 'none',
-                'cursor': 'default'
-            });
-            this.trigger("Invalidate");
-        }
-        return this;
-    }
+	unselectable: function () {
+		// http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting
+		if (this.has("DOM")) {
+			this.css({
+				"-webkit-touch-callout": "none",
+				"-webkit-user-select": "none",
+				"-khtml-user-select": "none",
+				"-moz-user-select": "none",
+				"-ms-user-select": "none",
+				"user-select": "none",
+				"cursor": "default"
+			});
+			this.trigger("Invalidate");
+		}
+		return this;
+	}
 
 });

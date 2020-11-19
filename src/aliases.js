@@ -1,30 +1,37 @@
+import Qrafty from "./core/core";
 
 function createDeprecatedAlias(oldObject, oldName, newObject, newName) {
-    Object.defineProperty(oldObject, oldName, {
-        enumerable: false,
-        configurable: false,
-        get: function() { return newObject[newName]; },
-        set: function(value) { newObject[newName] = value; }
-    });
+	Object.defineProperty(oldObject, oldName, {
+		enumerable: false,
+		configurable: false,
+		get: function() { 
+			Qrafty.warn(`${oldName} is deprecated.`);
+			return newObject[newName];
+		},
+		set: function(value) { newObject[newName] = value; }
+	});
 }
 
-module.exports = {
-    defineAliases: function defineAliases(Crafty) {
-        createDeprecatedAlias(Crafty, "image_whitelist", Crafty, "imageWhitelist");
+export default {
+	defineAliases: function defineAliases(Qrafty) {
+		//createDeprecatedAlias(Qrafty, "bind", Qrafty, "on");
+		//createDeprecatedAlias(Qrafty, "trigger", Qrafty, "emit");
 
-        createDeprecatedAlias(Crafty, "mouseDispatch", Crafty.s('Mouse'), "processEvent");
-        createDeprecatedAlias(Crafty, "mouseButtonsDown", Crafty.s('Mouse'), "_buttonDown");
-        createDeprecatedAlias(Crafty, "lastEvent", Crafty.s('Mouse'), "lastMouseEvent");
-        createDeprecatedAlias(Crafty, "mouseObjs", Crafty.s('Mouse'), "mouseObjs");
+		createDeprecatedAlias(Qrafty, "image_whitelist", Qrafty, "imageWhitelist");
 
-        createDeprecatedAlias(Crafty, "keyboardDispatch", Crafty.s('Keyboard'), "processEvent");
-        createDeprecatedAlias(Crafty, "keydown", Crafty.s('Keyboard'), "_keyDown");
-        createDeprecatedAlias(Crafty, "resetKeyDown", Crafty.s('Keyboard'), "resetKeyDown");
+		createDeprecatedAlias(Qrafty, "mouseDispatch", Qrafty.s("Mouse"), "processEvent");
+		createDeprecatedAlias(Qrafty, "mouseButtonsDown", Qrafty.s("Mouse"), "_buttonDown");
+		createDeprecatedAlias(Qrafty, "lastEvent", Qrafty.s("Mouse"), "lastMouseEvent");
+		createDeprecatedAlias(Qrafty, "mouseObjs", Qrafty.s("Mouse"), "mouseObjs");
 
-        createDeprecatedAlias(Crafty, "touchDispatch", Crafty, "_touchDispatch");
-        createDeprecatedAlias(Crafty, "touchObjs", Crafty.s('Touch'), "touchObjs");
-        Crafty.touchHandler = {};
-        createDeprecatedAlias(Crafty.touchHandler, "fingers", Crafty.s('Touch'), "touchPoints");
-    }
+		createDeprecatedAlias(Qrafty, "keyboardDispatch", Qrafty.s("Keyboard"), "processEvent");
+		createDeprecatedAlias(Qrafty, "keydown", Qrafty.s("Keyboard"), "_keyDown");
+		createDeprecatedAlias(Qrafty, "resetKeyDown", Qrafty.s("Keyboard"), "resetKeyDown");
+
+		createDeprecatedAlias(Qrafty, "touchDispatch", Qrafty, "_touchDispatch");
+		createDeprecatedAlias(Qrafty, "touchObjs", Qrafty.s("Touch"), "touchObjs");
+		Qrafty.touchHandler = {};
+		createDeprecatedAlias(Qrafty.touchHandler, "fingers", Qrafty.s("Touch"), "touchPoints");
+	}
 };
 

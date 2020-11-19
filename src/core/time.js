@@ -1,3 +1,5 @@
+import Qrafty from "./core";
+
 /**@
  * #Delay
  * @category Utilities
@@ -5,10 +7,10 @@
  *
  * A component for triggering functions after a given amount of time.
  *
- * This syncs with Crafty's internal clock, and so should generally be preferred to using methods such as `setTimeout`.
+ * This syncs with Qrafty's internal clock, and so should generally be preferred to using methods such as `setTimeout`.
  */
-module.exports = {
-    /**@
+Qrafty.c("Delay", {
+	/**@
      * #.delaySpeed
      * @comp Delay
      *
@@ -16,39 +18,39 @@ module.exports = {
      * When setting delaySpeed to 0.5, delays will take twice as long,
      * setting it to 2.0 will make them twice as short
      */
-    delaySpeed: 1,
+	delaySpeed: 1,
 
-    init: function () {
-        this._delays = [];
-        this._delaysPaused = false;
-        this.bind("UpdateFrame", function (frameData) {
-            if (this._delaysPaused) return;
-            var index = this._delays.length;
-            while (--index >= 0) {
-                var item = this._delays[index];
-                if (item === false) {
-                    // remove canceled item from array
-                    this._delays.splice(index, 1);
-                } else {
-                    item.accumulator += frameData.dt * this.delaySpeed;
-                    // The while loop handles the (pathological) case where dt>delay
-                    while(item.accumulator >= item.delay && item.repeat >= 0){
-                        item.accumulator -= item.delay;
-                        item.repeat--;
-                        item.callback.call(this);
-                    }
-                    // remove finished item from array
-                    if (item.repeat<0){
-                        this._delays.splice(index, 1);
-                        if(typeof item.callbackOff === "function")
-                            item.callbackOff.call(this);
-                    }
-                }
-            }
-        });
+	init: function () {
+		this._delays = [];
+		this._delaysPaused = false;
+		this.bind("UpdateFrame", function (frameData) {
+			if (this._delaysPaused) return;
+			var index = this._delays.length;
+			while (--index >= 0) {
+				var item = this._delays[index];
+				if (item === false) {
+					// remove canceled item from array
+					this._delays.splice(index, 1);
+				} else {
+					item.accumulator += frameData.dt * this.delaySpeed;
+					// The while loop handles the (pathological) case where dt>delay
+					while(item.accumulator >= item.delay && item.repeat >= 0){
+						item.accumulator -= item.delay;
+						item.repeat--;
+						item.callback.call(this);
+					}
+					// remove finished item from array
+					if (item.repeat<0){
+						this._delays.splice(index, 1);
+						if(typeof item.callbackOff === "function")
+							item.callbackOff.call(this);
+					}
+				}
+			}
+		});
 
-    },
-    /**@
+	},
+	/**@
      * #.delay
      * @comp Delay
      * @kind Method
@@ -66,7 +68,7 @@ module.exports = {
      *
      * It is not a wrapper for `setTimeout`.
      *
-     * If Crafty is paused, the delay is interrupted with the pause and then resume when unpaused
+     * If Qrafty is paused, the delay is interrupted with the pause and then resume when unpaused
      *
      * If the entity is destroyed, the delay is also destroyed and will not have effect.
      *
@@ -74,34 +76,34 @@ module.exports = {
      *
      * The simplest delay
      * ~~~
-     * Crafty.log("start");
-     * Crafty.e("Delay").delay(function() {
-     *   Crafty.log("100ms later");
+     * Qrafty.log("start");
+     * Qrafty.e("Delay").delay(function() {
+     *   Qrafty.log("100ms later");
      * }, 100, 0);
      * ~~~
      *
      * Delay with callbackOff to be executed after all delay iterations
      * ~~~
-     * Crafty.log("start");
-     * Crafty.e("Delay").delay(function() {
-     *   Crafty.log("100ms later");
+     * Qrafty.log("start");
+     * Qrafty.e("Delay").delay(function() {
+     *   Qrafty.log("100ms later");
      * }, 100, 3, function() {
-     *   Crafty.log("delay finished");
+     *   Qrafty.log("delay finished");
      * });
      * ~~~
      *
      */
-    delay: function (callback, delay, repeat, callbackOff) {
-        this._delays.push({
-            accumulator: 0,
-            callback: callback,
-            callbackOff: callbackOff,
-            delay: delay,
-            repeat: (repeat < 0 ? Infinity : repeat) || 0,
-        });
-        return this;
-    },
-    /**@
+	delay: function (callback, delay, repeat, callbackOff) {
+		this._delays.push({
+			accumulator: 0,
+			callback: callback,
+			callbackOff: callbackOff,
+			delay: delay,
+			repeat: (repeat < 0 ? Infinity : repeat) || 0,
+		});
+		return this;
+	},
+	/**@
      * #.cancelDelay
      * @comp Delay
      * @kind Method
@@ -114,27 +116,27 @@ module.exports = {
      * @example
      * ~~~
      * var doSomething = function(){
-     *   Crafty.log("doing something");
+     *   Qrafty.log("doing something");
      * };
      *
      * // execute doSomething each 100 miliseconds indefinetely
-     * var ent = Crafty.e("Delay").delay(doSomething, 100, -1);
+     * var ent = Qrafty.e("Delay").delay(doSomething, 100, -1);
      *
      * // and some time later, cancel further execution of doSomething
      * ent.cancelDelay(doSomething);
      * ~~~
      */
-    cancelDelay: function (callback) {
-        var index = this._delays.length;
-        while (--index >= 0) {
-            var item = this._delays[index];
-            if(item && item.callback === callback){
-                this._delays[index] = false;
-            }
-        }
-        return this;
-    },
-    /**@
+	cancelDelay: function (callback) {
+		var index = this._delays.length;
+		while (--index >= 0) {
+			var item = this._delays[index];
+			if(item && item.callback === callback){
+				this._delays[index] = false;
+			}
+		}
+		return this;
+	},
+	/**@
      * #.pauseDelays
      * @comp Delay
      * @kind Method
@@ -147,20 +149,20 @@ module.exports = {
      * @example
      * ~~~
      * var doSomething = function(){
-     *   Crafty.log("doing something");
+     *   Qrafty.log("doing something");
      * };
      *
      * // execute doSomething each 100 miliseconds indefinetely
-     * var ent = Crafty.e("Delay").delay(doSomething, 100, -1);
+     * var ent = Qrafty.e("Delay").delay(doSomething, 100, -1);
      *
      * // and some time later, the gameplay is paused
      * ent.pauseDelays();
      * ~~~
      */
-    pauseDelays: function() {
-        this._delaysPaused = true;
-    },
-    /**@
+	pauseDelays: function() {
+		this._delaysPaused = true;
+	},
+	/**@
      * #.resumeDelays
      * @comp Delay
      * @kind Method
@@ -173,11 +175,11 @@ module.exports = {
      * @example
      * ~~~
      * var doSomething = function(){
-     *   Crafty.log("doing something");
+     *   Qrafty.log("doing something");
      * };
      *
      * // execute doSomething each 100 miliseconds indefinetely
-     * var ent = Crafty.e("Delay").delay(doSomething, 100, -1);
+     * var ent = Qrafty.e("Delay").delay(doSomething, 100, -1);
      *
      * // and some time later, the gameplay is paused (or only
      * // a part of it is frozen)
@@ -187,7 +189,7 @@ module.exports = {
      * ent.resumeDelays();
      * ~~~
      */
-    resumeDelays: function() {
-        this._delaysPaused = false;
-    }
-};
+	resumeDelays: function() {
+		this._delaysPaused = false;
+	}
+});

@@ -1,4 +1,4 @@
-var Crafty = require('../core/core.js');
+import Qrafty from "../core/core";
 
 /**@
  * #TouchState
@@ -13,7 +13,7 @@ var Crafty = require('../core/core.js');
  * @trigger TouchEnd - when a finger is raised - TouchPointEvent
  * @trigger TouchCancel - when a touch event has been disrupted in some way - TouchPointEvent
  *
- * The standard Crafty `TouchPointEvent` object:
+ * The standard Qrafty `TouchPointEvent` object:
  * ~~~
  * // event name of touch event
  * e.eventName
@@ -36,8 +36,8 @@ var Crafty = require('../core/core.js');
  *
  * @see Touch, TouchSystem
  */
-Crafty.__touchStateTemplate = {
-    /**@
+Qrafty.__touchStateTemplate = {
+	/**@
      * #.touchPoints
      * @comp TouchState
      * @kind Property
@@ -47,27 +47,27 @@ Crafty.__touchStateTemplate = {
      *
      * @example
      * ~~~
-     * var touchPoint, touchPoints = Crafty.s('Touch').touchPoints;
+     * var touchPoint, touchPoints = Qrafty.s('Touch').touchPoints;
      * for (var i = 0, l = touchPoints.length; i < l; i++) {
      *   touchPoint = touchPoints[i];
-     *   Crafty.log(touchPoint.realX, touchPoint.realY); // logs coordinates in Crafty's world space
+     *   Qrafty.log(touchPoint.realX, touchPoint.realY); // logs coordinates in Qrafty's world space
      * }
      * ~~~
      *
      * @see .resetTouchPoints
      */
-    touchPoints: null,
+	touchPoints: null,
 
-    _touchPointsPool: null,
+	_touchPointsPool: null,
 
-    init: function() {
-        this.touchPoints = [];
-        this._touchPointsPool = [];
-        // use custom trigger method if specified
-        this.triggerTouchEvent = this.triggerTouchEvent || this.trigger;
-    },
+	init: function() {
+		this.touchPoints = [];
+		this._touchPointsPool = [];
+		// use custom trigger method if specified
+		this.triggerTouchEvent = this.triggerTouchEvent || this.trigger;
+	},
 
-    /**@
+	/**@
      * #.resetTouchPoints
      * @comp TouchState
      * @kind Method
@@ -76,24 +76,24 @@ Crafty.__touchStateTemplate = {
      *
      * Reset all current touch points. Triggers appropriate "TouchCancel" events.
      *
-     * This method is called internally, but may be useful when running Crafty in headless mode.
+     * This method is called internally, but may be useful when running Qrafty in headless mode.
      *
      * @see .touchPoints
      */
-    resetTouchPoints: function () {
-        // Tell all touch points they're no longer held down
-        var touchPoints = this.touchPoints, touchPoint,
-            i = touchPoints.length;
-        while (i--) { // iterate backwards to avoid conflicts with removal of array elements
-            touchPoint = touchPoints[i];
-            touchPoint.eventName = "TouchCancel";
-            this.triggerTouch("TouchCancel", touchPoint);
-        }
+	resetTouchPoints: function () {
+		// Tell all touch points they're no longer held down
+		var touchPoints = this.touchPoints, touchPoint,
+			i = touchPoints.length;
+		while (i--) { // iterate backwards to avoid conflicts with removal of array elements
+			touchPoint = touchPoints[i];
+			touchPoint.eventName = "TouchCancel";
+			this.triggerTouch("TouchCancel", touchPoint);
+		}
 
-        return this;
-    },
+		return this;
+	},
 
-    /**@
+	/**@
      * #.triggerTouch
      * @comp TouchState
      * @kind Method
@@ -106,7 +106,7 @@ Crafty.__touchStateTemplate = {
      * This method prevents inconsistent touch state.
      * e.g. If this entity didn't receive a "TouchStart" of a identifier previously, it won't fire a "TouchEnd" event for that identifier.
      *
-     * This method is called internally, but may be useful when running Crafty in headless mode.
+     * This method is called internally, but may be useful when running Qrafty in headless mode.
      *
      * @example
      * ~~~
@@ -118,94 +118,94 @@ Crafty.__touchStateTemplate = {
      *    })
      *    .triggerTouch('TouchEnd', { identifier: 0 });
      *
-     * Crafty.log(wasTriggered); // prints false
+     * Qrafty.log(wasTriggered); // prints false
      * ~~~
      */
-    triggerTouch: function (eventName, eventData) {
-        switch (eventName) {
-            case "TouchStart":
-                this._handleStart(eventData);
-                break;
-            case "TouchMove":
-                this._handleMove(eventData);
-                break;
-            case "TouchCancel":
-            case "TouchEnd":
-                this._handleEnd(eventData);
-                break;
-            default:
-                this.triggerTouchEvent(eventName, eventData); // trigger the event otherwise
-        }
-        return this;
-    },
+	triggerTouch: function (eventName, eventData) {
+		switch (eventName) {
+		case "TouchStart":
+			this._handleStart(eventData);
+			break;
+		case "TouchMove":
+			this._handleMove(eventData);
+			break;
+		case "TouchCancel":
+		case "TouchEnd":
+			this._handleEnd(eventData);
+			break;
+		default:
+			this.triggerTouchEvent(eventName, eventData); // trigger the event otherwise
+		}
+		return this;
+	},
 
-    _indexOfTouchPoint: function (identifier) {
-        var touchPoints = this.touchPoints;
-        for (var i = 0, l = touchPoints.length; i < l; i++) {
-            if (touchPoints[i].identifier === identifier) {
-                return i;
-            }
-        }
-        return -1;
-    },
+	_indexOfTouchPoint: function (identifier) {
+		var touchPoints = this.touchPoints;
+		for (var i = 0, l = touchPoints.length; i < l; i++) {
+			if (touchPoints[i].identifier === identifier) {
+				return i;
+			}
+		}
+		return -1;
+	},
 
-    _setTouchPoint: function (touchPointDest, touchPointSrc) {
-        touchPointDest.eventName = touchPointSrc.eventName;
-        touchPointDest.identifier = touchPointSrc.identifier;
-        touchPointDest.target = touchPointSrc.target;
-        touchPointDest.entity = touchPointSrc.entity; // DEPRECATED: remove this in upcoming release
-        touchPointDest.realX = touchPointSrc.realX;
-        touchPointDest.realY = touchPointSrc.realY;
-        touchPointDest.originalEvent = touchPointSrc.originalEvent;
-    },
+	_setTouchPoint: function (touchPointDest, touchPointSrc) {
+		touchPointDest.eventName = touchPointSrc.eventName;
+		touchPointDest.identifier = touchPointSrc.identifier;
+		touchPointDest.target = touchPointSrc.target;
+		touchPointDest.entity = touchPointSrc.entity; // DEPRECATED: remove this in upcoming release
+		touchPointDest.realX = touchPointSrc.realX;
+		touchPointDest.realY = touchPointSrc.realY;
+		touchPointDest.originalEvent = touchPointSrc.originalEvent;
+	},
 
-    _handleStart: function (touchPoint) {
-        var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
-            oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
-        if (!oldTouchPoint) { // ignore TouchStart due to inconsistent state caused by loosing focus
-            // allocate touch point
-            var newTouchPoint = this._touchPointsPool.pop() || {};
-            this._setTouchPoint(newTouchPoint, touchPoint);
-            this.touchPoints.push(newTouchPoint);
+	_handleStart: function (touchPoint) {
+		var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
+			oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
+		if (!oldTouchPoint) { // ignore TouchStart due to inconsistent state caused by loosing focus
+			// allocate touch point
+			var newTouchPoint = this._touchPointsPool.pop() || {};
+			this._setTouchPoint(newTouchPoint, touchPoint);
+			this.touchPoints.push(newTouchPoint);
 
-            this.triggerTouchEvent(newTouchPoint.eventName, newTouchPoint);
-        }
-    },
+			this.triggerTouchEvent(newTouchPoint.eventName, newTouchPoint);
+		}
+	},
 
-    _handleMove: function (touchPoint) {
-        var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
-            oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
-        if (oldTouchPoint) { // ignore TouchMove due to inconsistent state caused by loosing focus
-            // update touch point
-            this._setTouchPoint(oldTouchPoint, touchPoint);
+	_handleMove: function (touchPoint) {
+		var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
+			oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
+		if (oldTouchPoint) { // ignore TouchMove due to inconsistent state caused by loosing focus
+			// update touch point
+			this._setTouchPoint(oldTouchPoint, touchPoint);
 
-            this.triggerTouchEvent(oldTouchPoint.eventName, oldTouchPoint);
-        }
-    },
+			this.triggerTouchEvent(oldTouchPoint.eventName, oldTouchPoint);
+		}
+	},
 
-    _handleEnd: function (touchPoint) {
-        var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
-            oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
-        if (oldTouchPoint) { // ignore TouchEnd due to inconsistent state caused by loosing focus
-            this._setTouchPoint(oldTouchPoint, touchPoint);
-            this.triggerTouchEvent(oldTouchPoint.eventName, oldTouchPoint);
+	_handleEnd: function (touchPoint) {
+		var oldIndex = this._indexOfTouchPoint(touchPoint.identifier),
+			oldTouchPoint = oldIndex >= 0 ? this.touchPoints[oldIndex] : null;
+		if (oldTouchPoint) { // ignore TouchEnd due to inconsistent state caused by loosing focus
+			this._setTouchPoint(oldTouchPoint, touchPoint);
+			this.triggerTouchEvent(oldTouchPoint.eventName, oldTouchPoint);
 
-            // free touch point
-            this.touchPoints.splice(oldIndex, 1);
-            oldTouchPoint.target = null; // release reference for possible GC
-            oldTouchPoint.entity = null; // DEPRECATED: remove this in upcoming release
-            oldTouchPoint.originalEvent = null; // release reference for possible GC
-            this._touchPointsPool.push(oldTouchPoint);
-        }
-    }
+			// free touch point
+			this.touchPoints.splice(oldIndex, 1);
+			oldTouchPoint.target = null; // release reference for possible GC
+			oldTouchPoint.entity = null; // DEPRECATED: remove this in upcoming release
+			oldTouchPoint.originalEvent = null; // release reference for possible GC
+			this._touchPointsPool.push(oldTouchPoint);
+		}
+	}
 };
-Crafty.c("TouchState", Crafty.__touchStateTemplate);
+Qrafty.c("TouchState", Qrafty.__touchStateTemplate);
 
 // define a basic Touch system for headless mode
 // will be substituted with proper one in browser mode
-Crafty.s("Touch", Crafty.extend.call({
-    // this method will be called by TouchState iff triggerTouch event was valid
-    triggerTouchEvent: function (eventName, e) {
-        Crafty.trigger(eventName, e);
-    }
-}, Crafty.__touchStateTemplate), {}, false);
+Qrafty.s("Touch", Qrafty.extend.call({
+	// this method will be called by TouchState iff triggerTouch event was valid
+	triggerTouchEvent: function (eventName, e) {
+		Qrafty.trigger(eventName, e);
+	}
+}, Qrafty.__touchStateTemplate), {}, false);

@@ -1,8 +1,8 @@
-var Crafty = require('../core/core.js');
+import Qrafty from "../core/core";
 
-Crafty.extend({
-    /**@
-     * #Crafty.findPointerEventTargetByComponent
+Qrafty.extend({
+	/**@
+     * #Qrafty.findPointerEventTargetByComponent
      * @category Input
      * @kind Method
      *
@@ -26,60 +26,60 @@ Crafty.extend({
      * For having a detection area specified for the enity, add the AreaMap component to the entity expected to be found.
      *
      */
-    findPointerEventTargetByComponent: function (comp, x, y) {
-        var tar = x.target || x.srcElement || Crafty.stage.elem;
-        y = typeof y !== 'undefined' ? y : x.clientY;
-        x = typeof x.clientX !== 'undefined' ? x.clientX : x;
+	findPointerEventTargetByComponent: function (comp, x, y) {
+		var tar = x.target || x.srcElement || Qrafty.stage.elem;
+		y = typeof y !== "undefined" ? y : x.clientY;
+		x = typeof x.clientX !== "undefined" ? x.clientX : x;
 
-        var closest = null, current, q, l, i, pos, maxz = -Infinity;
+		var closest = null, current, q, l, i, pos, maxz = -Infinity;
 
-        //if it's a DOM element with component we are done
-        if (tar.nodeName !== "CANVAS") {
-            while (typeof (tar.id) !== 'string' && tar.id.indexOf('ent') === -1) {
-                tar = tar.parentNode;
-            }
-            var ent = Crafty(parseInt(tar.id.replace('ent', ''), 10));
-            pos = Crafty.domHelper.translate(x, y, ent._drawLayer);
-            if (ent.__c[comp] && ent.isAt(pos.x, pos.y)) {
-                closest = ent;
-            }
-        }
+		//if it's a DOM element with component we are done
+		if (tar.nodeName !== "CANVAS") {
+			while (typeof (tar.id) !== "string" && tar.id.indexOf("ent") === -1) {
+				tar = tar.parentNode;
+			}
+			var ent = Qrafty(parseInt(tar.id.replace("ent", ""), 10));
+			pos = Qrafty.domHelper.translate(x, y, ent._drawLayer);
+			if (ent.__c[comp] && ent.isAt(pos.x, pos.y)) {
+				closest = ent;
+			}
+		}
 
-        //else we search for an entity with component
-        if (!closest) {
+		//else we search for an entity with component
+		if (!closest) {
 
-            // Loop through each layer
-            for (var layerIndex in Crafty._drawLayers) {
-                var layer = Crafty._drawLayers[layerIndex];
+			// Loop through each layer
+			for (var layerIndex in Qrafty._drawLayers) {
+				var layer = Qrafty._drawLayers[layerIndex];
 
-                // Skip a layer if it has no entities listening for pointer events
-                if (layer._pointerEntities <= 0) continue;
+				// Skip a layer if it has no entities listening for pointer events
+				if (layer._pointerEntities <= 0) continue;
 
-                // Get the position in this layer
-                pos = Crafty.domHelper.translate(x, y, layer);
-                q = Crafty.map.unfilteredSearch({
-                    _x: pos.x,
-                    _y: pos.y,
-                    _w: 1,
-                    _h: 1
-                });
+				// Get the position in this layer
+				pos = Qrafty.domHelper.translate(x, y, layer);
+				q = Qrafty.map.unfilteredSearch({
+					_x: pos.x,
+					_y: pos.y,
+					_w: 1,
+					_h: 1
+				});
 
-                for (i = 0, l = q.length; i < l; ++i) {
-                    current = q[i];
-                    if (current._visible && current._drawLayer === layer && current._globalZ > maxz &&
+				for (i = 0, l = q.length; i < l; ++i) {
+					current = q[i];
+					if (current._visible && current._drawLayer === layer && current._globalZ > maxz &&
                         current.__c[comp] && current.isAt(pos.x, pos.y)) {
-                        maxz = current._globalZ;
-                        closest = current;
-                    }
-                }
-            }
-        }
+						maxz = current._globalZ;
+						closest = current;
+					}
+				}
+			}
+		}
 
-        return closest;
-    },
+		return closest;
+	},
 
-    /**@
-     * #Crafty.translatePointerEventCoordinates
+	/**@
+     * #Qrafty.translatePointerEventCoordinates
      * @category Input
      * @kind Method
      *
@@ -94,20 +94,20 @@ Crafty.extend({
      * This method is used internally by the .mouseDispatch and .touchDispatch methods,
      * but may be used for custom events.
      *
-     * @see Crafty.domHelper#Crafty.domHelper.translate
+     * @see Qrafty.domHelper#Qrafty.domHelper.translate
      */
-    translatePointerEventCoordinates: function (e, out) {
-        out = out || e;
+	translatePointerEventCoordinates: function (e, out) {
+		out = out || e;
 
-        // Find the Crafty position in the default coordinate set,
-        // disregard the fact that the pointer event was related to a specific layer.
-        var pos = Crafty.domHelper.translate(e.clientX, e.clientY, undefined, this.__pointerPos);
+		// Find the Qrafty position in the default coordinate set,
+		// disregard the fact that the pointer event was related to a specific layer.
+		var pos = Qrafty.domHelper.translate(e.clientX, e.clientY, undefined, this.__pointerPos);
 
-        // Set the mouse position based on standard viewport coordinates
-        out.realX = pos.x;
-        out.realY = pos.y;
-    },
-    __pointerPos: {x: 0, y: 0} // object to reuse
+		// Set the mouse position based on standard viewport coordinates
+		out.realX = pos.x;
+		out.realY = pos.y;
+	},
+	__pointerPos: {x: 0, y: 0} // object to reuse
 });
 
 /**@
@@ -116,43 +116,43 @@ Crafty.extend({
  * @kind Component
  *
  * Component used by Mouse and Touch.
- * Can be added to other entities for use with the Crafty.findPointerEventTargetByComponent method.
+ * Can be added to other entities for use with the Qrafty.findPointerEventTargetByComponent method.
  *
  * @see Button
- * @see Crafty.polygon
- * @see Crafty.findPointerEventTargetByComponent
+ * @see Qrafty.polygon
+ * @see Qrafty.findPointerEventTargetByComponent
  */
-Crafty.c("AreaMap", {
-    init: function () {
-        if (this.has("Renderable") && this._drawLayer) {
-            this._drawLayer._pointerEntities++;
-        }
-    },
+Qrafty.c("AreaMap", {
+	init: function () {
+		if (this.has("Renderable") && this._drawLayer) {
+			this._drawLayer._pointerEntities++;
+		}
+	},
 
-    remove: function (isDestruction) {
-        if (!isDestruction && this.has("Renderable") && this._drawLayer) {
-            this._drawLayer._pointerEntities--;
-        }
-    },
+	remove: function (isDestruction) {
+		if (!isDestruction && this.has("Renderable") && this._drawLayer) {
+			this._drawLayer._pointerEntities--;
+		}
+	},
 
-    events: {
-        "LayerAttached": function (layer) {
-            layer._pointerEntities++;
-        },
-        "LayerDetached": function (layer) {
-            layer._pointerEntities--;
-        }
-    },
+	events: {
+		"LayerAttached": function (layer) {
+			layer._pointerEntities++;
+		},
+		"LayerDetached": function (layer) {
+			layer._pointerEntities--;
+		}
+	},
 
-    /**@
+	/**@
      * #.areaMap
      * @comp AreaMap
      * @kind Method
      *
-     * @trigger NewAreaMap - when a new areaMap is assigned - Crafty.polygon
+     * @trigger NewAreaMap - when a new areaMap is assigned - Qrafty.polygon
      *
-     * @sign public this .areaMap(Crafty.polygon polygon)
-     * @param polygon - Instance of Crafty.polygon used to check if the mouse coordinates are inside this region
+     * @sign public this .areaMap(Qrafty.polygon polygon)
+     * @param polygon - Instance of Qrafty.polygon used to check if the mouse coordinates are inside this region
      *
      * @sign public this .areaMap(Array coordinatePairs)
      * @param coordinatePairs - Array of `x`, `y` coordinate pairs to generate a polygon
@@ -165,40 +165,40 @@ Crafty.c("AreaMap", {
      *
      * @example
      * ~~~
-     * Crafty.e("2D, DOM, Color, Mouse")
+     * Qrafty.e("2D, DOM, Color, Mouse")
      *     .color("red")
      *     .attr({ w: 100, h: 100 })
-     *     .bind('MouseOver', function() {Crafty.log("over")})
+     *     .bind('MouseOver', function() {Qrafty.log("over")})
      *     .areaMap(0, 0, 50, 0, 50, 50, 0, 50);
      *
-     * Crafty.e("2D, Mouse")
+     * Qrafty.e("2D, Mouse")
      *     .areaMap([0, 0, 50, 0, 50, 50, 0, 50]);
      *
-     * Crafty.e("2D, Mouse").areaMap(
-     *     new Crafty.polygon([0, 0, 50, 0, 50, 50, 0, 50])
+     * Qrafty.e("2D, Mouse").areaMap(
+     *     new Qrafty.polygon([0, 0, 50, 0, 50, 50, 0, 50])
      * );
      * ~~~
      *
-     * @see Crafty.polygon
+     * @see Qrafty.polygon
      */
-    areaMap: function (poly) {
-        //create polygon
-        if (arguments.length > 1) {
-            //convert args to array to create polygon
-            var args = Array.prototype.slice.call(arguments, 0);
-            poly = new Crafty.polygon(args);
-        } else if (poly.constructor === Array) {
-            poly = new Crafty.polygon(poly.slice());
-        } else {
-            poly = poly.clone();
-        }
+	areaMap: function (poly) {
+		//create polygon
+		if (arguments.length > 1) {
+			//convert args to array to create polygon
+			var args = Array.prototype.slice.call(arguments, 0);
+			poly = new Qrafty.polygon(args);
+		} else if (poly.constructor === Array) {
+			poly = new Qrafty.polygon(poly.slice());
+		} else {
+			poly = poly.clone();
+		}
 
-        poly.shift(this._x, this._y);
-        this.mapArea = poly;
-        this.attach(this.mapArea);
-        this.trigger("NewAreaMap", poly);
-        return this;
-    }
+		poly.shift(this._x, this._y);
+		this.mapArea = poly;
+		this.attach(this.mapArea);
+		this.trigger("NewAreaMap", poly);
+		return this;
+	}
 });
 
 /**@
@@ -211,11 +211,11 @@ Crafty.c("AreaMap", {
  *
  * @see Mouse
  * @see Touch
- * @see Crafty.multitouch
+ * @see Qrafty.multitouch
  */
-Crafty.c("Button", {
-    init: function () {
-        var req = (!Crafty.mobile || (Crafty.mobile && !Crafty.multitouch())) ? "Mouse" : "Touch";
-        this.requires(req);
-    }
+Qrafty.c("Button", {
+	init: async function () {
+		var req = (!Qrafty.mobile || (Qrafty.mobile && !Qrafty.multitouch())) ? "Mouse" : "Touch";
+		await this.requires(req);
+	}
 });

@@ -1,1 +1,0 @@
-Directory containing actual and delta screenshots of failed visual regression tests.

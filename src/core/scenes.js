@@ -1,174 +1,81 @@
-var Crafty = require('../core/core.js');
+import Qrafty from "../core/core";
 
+Qrafty.extend.call(Qrafty.defaultOptions.settings, {
+	findScenes: false
+});	
 
-module.exports = {
-    _scenes: {},
-    _current: null,
+Qrafty.extend({
+	_scenes: new Map(),
+	_current: null,
+     
+	cleanupScene: async function () {
+		if (this._current === null) return;
+          
+		Qrafty.trigger("SceneDestroy", {newScene: name});
+		Qrafty.viewport.reset();
 
-    /**@
-     * #Crafty.scene
-     * @category Scenes, Stage
-     * @kind Method
-     * 
-     * @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
-     * @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
-     *
-     * @sign public void Crafty.scene(String sceneName, Function init[, Function uninit])
-     * @param sceneName - Name of the scene to add
-     * @param init - Function to execute when scene is played
-     * @param uninit - Function to execute before next scene is played, after entities with `2D` are destroyed
-     *
-     * This is equivalent to calling `Crafty.defineScene`.
-     *
-     * @sign public void Crafty.scene(String sceneName[, Data])
-     * @param sceneName - Name of scene to play
-     * @param Data - The init function of the scene will be called with this data as its parameter.  Can be of any type other than a function.
-     *
-     * This is equivalent to calling `Crafty.enterScene`.
-     *
-     * Method to create scenes on the stage. Pass an ID and function to register a scene.
-     *
-     * To play a scene, just pass the ID. When a scene is played, all
-     * previously-created entities with the `2D` component are destroyed. The
-     * viewport is also reset.
-     *
-     * You can optionally specify an arugment that will be passed to the scene's init function.
-     *
-     * If you want some entities to persist over scenes (as in, not be destroyed)
-     * simply add the component `Persist`.
-     *
-     * @example
-     * ~~~
-     * Crafty.defineScene("loading", function() {
-     *     Crafty.background("#000");
-     *     Crafty.e("2D, DOM, Text")
-     *           .attr({ w: 100, h: 20, x: 150, y: 120 })
-     *           .text("Loading")
-     *           .textAlign("center")
-     *           .textColor("#FFFFFF");
-     * });
-     *
-     * Crafty.defineScene("UFO_dance",
-     *              function() {Crafty.background("#444"); Crafty.e("UFO");},
-     *              function() {...send message to server...});
-     *
-     * // An example of an init function which accepts arguments, in this case an object.
-     * Crafty.defineScene("square", function(attributes) {
-     *     Crafty.background("#000");
-     *     Crafty.e("2D, DOM, Color")
-     *           .attr(attributes)
-     *           .color("red");
-     * 
-     * });
-     *
-     * ~~~
-     * This defines (but does not play) two scenes as discussed below.
-     * ~~~
-     * Crafty.enterScene("loading");
-     * ~~~
-     * This command will clear the stage by destroying all `2D` entities (except
-     * those with the `Persist` component). Then it will set the background to
-     * black and display the text "Loading".
-     * ~~~
-     * Crafty.enterScene("UFO_dance");
-     * ~~~
-     * This command will clear the stage by destroying all `2D` entities (except
-     * those with the `Persist` component). Then it will set the background to
-     * gray and create a UFO entity. Finally, the next time the game encounters
-     * another command of the form `Crafty.scene(scene_name)` (if ever), then the
-     * game will send a message to the server.
-     * ~~~
-     * Crafty.enterScene("square", {x:10, y:10, w:20, h:20});
-     * ~~~
-     * This will clear the stage, set the background black, and create a red square with the specified position and dimensions.
-     * ~~~
-     */
-    scene: function (name, intro, outro) {
-        // If there's one argument, or the second argument isn't a function, play the scene
-        if (arguments.length === 1 || typeof(arguments[1]) !== "function") {
-            Crafty.enterScene(name, arguments[1]);
-            return;
-        }
-        // Otherwise, this is a call to create a scene
-        Crafty.defineScene(name, intro, outro);
-    },
+		Qrafty("2D").each(function () {
+			if (!this.has("Persist")) this.destroy();
+		});
+          
+		const scene = await this.findScene(this._current, false);
+		if ({}.hasOwnProperty.call(scene, "uninitialize")) {
+			scene["uninitialize"].call(this);
+		}
+	},
 
-    /* 
-     * #Crafty.defineScene
-     * @category Scenes, Stage
-     * @kind Method
-     *
-     * @sign public void Crafty.enterScene(String name[, Data])
-     * @param name - Name of the scene to run.
-     * @param Data - The init function of the scene will be called with this data as its parameter.  Can be of any type other than a function.
-     *
-     * @see Crafty.enterScene
-     * @see Crafty.scene
-     */
-    defineScene: function(name, init, uninit){
-        if (typeof init !== "function")
-            throw("Init function is the wrong type.");
-        this._scenes[name] = {};
-        this._scenes[name].initialize = init;
-        if (typeof uninit !== 'undefined') {
-            this._scenes[name].uninitialize = uninit;
-        }
-        return;
+	scene: async function () {
+		if (arguments.length === 1) return Qrafty.enterScene(arguments[0], arguments[1]);
+		return this.defineScene.apply(this, arguments);
+	},
 
-    },
+	defineScene: async function (name, scene){
+		let {initialize, uninitialize} = scene;
 
-    /* 
-     * #Crafty.enterScene
-     * @category Scenes, Stage
-     * @kind Method
-     * 
-     * @trigger SceneChange - just before a new scene is initialized - { oldScene:String, newScene:String }
-     * @trigger SceneDestroy - just before the current scene is destroyed - { newScene:String  }
-     *
-     * @sign public void Crafty.enterScene(String name[, Data])
-     * @param name - Name of the scene to run.
-     * @param Data - The init function of the scene will be called with this data as its parameter.  Can be of any type other than a function.
-     * 
-     * @see Crafty.defineScene
-     * @see Crafty.scene
-     */
-    enterScene: function(name, data){
-        if (typeof data === "function")
-            throw("Scene data cannot be a function");
+		// support for old variant of arguments.
+		// -> defineScene(name, initialize, uninitialize)
+		if (typeof scene === "function") initialize = scene;
+		if (typeof arguments[2] === "function") uninitialize = arguments[2];
 
-        // ---FYI---
-        // this._current is the name (ID) of the scene in progress.
-        // this._scenes is an object like the following:
-        // {'Opening scene': {'initialize': fnA, 'uninitialize': fnB},
-        //  'Another scene': {'initialize': fnC, 'uninitialize': fnD}}
+		// throw errors for cases where arguments aren't what they should be.
+		if (!name || !scene) throw new Error("scene name or definition cannot be undefined");
+		if (typeof initialize !== "function") throw new Error("scene initialize function is the wrong type");
+		if (uninitialize && typeof uninitialize !== "function") throw new Error("scene uninitialize function is the wrong type");
 
-        Crafty.trigger("SceneDestroy", {
-            newScene: name
-        });
-        Crafty.viewport.reset();
+		this.debug(`defineScene: "${name}"`, scene);
+		this._scenes.set(name, scene);
+	},
 
-        Crafty("2D").each(function () {
-            if (!this.has("Persist")) this.destroy();
-        });
-        // uninitialize previous scene
-        if (this._current !== null && 'uninitialize' in this._scenes[this._current]) {
-            this._scenes[this._current].uninitialize.call(this);
-        }
-        // initialize next scene
-        var oldScene = this._current;
-        this._current = name;
-        Crafty.trigger("SceneChange", {
-            oldScene: oldScene,
-            newScene: name
-        });
-           
-        if (this._scenes.hasOwnProperty(name)) {
-            this._scenes[name].initialize.call(this, data);
-        } else {
-            Crafty.error('The scene "' + name + '" does not exist');
-        }
+	enterScene: async function (name, data){
+		if (typeof data === "function") throw new Error("scene data cannot be a function");
+            
+		this.cleanupScene();
+		let oldScene = this._current;
+		this._current = name;
+               
+		Qrafty.trigger("SceneChange", {oldScene: oldScene, newScene: name});
+		this.debug(`enterScene: "${name}"`, data);
+		return (await this.findScene(name))["initialize"].call(this, data);
+	},
 
-        return;
+	findScene: async function (name, lookup = true) {
+		if (lookup && !this._scenes.has(name)) {
+			const findDynamicObject = this.functions.get("findDynamicObject");
+			if (this.settings.get("findScenes") && findDynamicObject) {
+				let scene = await findDynamicObject({name, type: "scene"}).catch((e) => {
+					this.debug("findScene: findDynamicObject threw error:", e);
+					throw new Error(`the scene "${name}" does not exist`);
+				});
 
-    }
-};
+				this.debug(`findScene: "${name}" (dynamically imported)`);
+
+				scene.__dynamic = true;
+				await this.defineScene(name, scene);
+			}
+
+			if (!this._scenes.has(name)) throw new Error(`the scene "${name}" does not exist`);
+		}
+
+		return this._scenes.get(name);
+	}
+});

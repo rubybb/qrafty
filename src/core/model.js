@@ -1,5 +1,5 @@
-var Crafty = require('../core/core.js');
-
+//var Qrafty = require("../core/core.js");
+import Qrafty from "../core/core";
 
 /**@
  * #Model
@@ -24,58 +24,59 @@ var Crafty = require('../core/core.js');
  * @trigger Change[key.key] - The nested key value has changed.
  * @example
  * ~~~
- * Crafty.c('Person', {
+ * Qrafty.c('Person', {
  *   name: 'Fox',
  *   init: function() { this.requires('Model'); }
  * });
- * person = Crafty.e('Person').attr({name: 'blaine'});
+ * person = Qrafty.e('Person').attr({name: 'blaine'});
  * person.bind('Change[name]', function() {
- *   Crafty.log('name changed!');
+ *   Qrafty.log('name changed!');
  * });
  * person.attr('name', 'blainesch'); // Triggers event
  * person.is_dirty('name'); // true
  * person.changed // name
  * ~~~
  */
-module.exports = {
-  init: function() {
-    this.changed = [];
-    this.bind('Change', this._changed_attributes);
-    this.bind('Change', this._changed_triggers);
-  },
 
-  /**
+Qrafty.c("Model", {
+	init: function() {
+		this.changed = [];
+		this.bind("Change", this._changed_attributes);
+		this.bind("Change", this._changed_triggers);
+	},
+
+	/**
    * Fires more specific `Change` events.
    *
    * For instance a `Change[name]` may get fired when you
    * update the name data attribute on the model.
    */
-  _changed_triggers: function(data, options) {
-    var key;
-    options = Crafty.extend.call({pre: ''}, options);
-    for (key in data) {
-      this.trigger('Change[' + options.pre + key + ']', data[key]);
-      if (data[key].constructor === Object) {
-        this._changed_triggers(data[key], {
-          pre: options.pre + key + '.'
-        });
-      }
-    }
-  },
+	_changed_triggers: function(data, options) {
+		var key;
+		options = Qrafty.extend.call({pre: ""}, options);
+		for (key in data) {
+			this.trigger("Change[" + options.pre + key + "]", data[key]);
+			if (data[key].constructor === Object) {
+				this._changed_triggers(data[key], {
+					pre: options.pre + key + "."
+				});
+			}
+		}
+	},
 
-  /**
+	/**
    * Pushes all top-levle changed attribute names to the
    * changed array.
    */
-  _changed_attributes: function(data) {
-    var key;
-    for (key in data) {
-      this.changed.push(key);
-    }
-    return this;
-  },
+	_changed_attributes: function(data) {
+		var key;
+		for (key in data) {
+			this.changed.push(key);
+		}
+		return this;
+	},
 
-  /**@
+	/**@
    * #.is_dirty
    * @comp Model
    * @kind Method
@@ -84,7 +85,7 @@ module.exports = {
    *
    * @example
    * ~~~
-   * person = Crafty.e('Person').attr({name: 'Fox', age: 24})
+   * person = Qrafty.e('Person').attr({name: 'Fox', age: 24})
    * person.is_dirty() // false
    * person.is_dirty('name') // false
    *
@@ -95,12 +96,11 @@ module.exports = {
    * person.changed; // ['name']
    * ~~~
    */
-  is_dirty: function(key) {
-    if (arguments.length === 0) {
-      return !!this.changed.length;
-    } else {
-      return this.changed.indexOf(key) > -1;
-    }
-  }
-};
-
+	is_dirty: function(key) {
+		if (arguments.length === 0) {
+			return !!this.changed.length;
+		} else {
+			return this.changed.indexOf(key) > -1;
+		}
+	}
+});

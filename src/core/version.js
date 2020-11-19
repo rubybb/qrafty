@@ -1,1 +1,1 @@
-module.exports = "0.9.0";
+export default "/* @env BUILD_VERSION */";

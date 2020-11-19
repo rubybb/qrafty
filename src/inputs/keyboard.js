@@ -1,4 +1,5 @@
-var Crafty = require('../core/core.js');
+//var Qrafty = require("../core/core.js");
+import Qrafty from "../core/core";
 
 /**@
  * #KeyboardSystem
@@ -9,64 +10,64 @@ var Crafty = require('../core/core.js');
  * @note Events and methods are inherited from the `KeyboardState` component.
  *
  * The event callbacks are triggered with a native [`KeyboardEvent`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
- * received by `window.document`, which is wrapped in a standard Crafty event object (as described in `KeyboardState`).
+ * received by `window.document`, which is wrapped in a standard Qrafty event object (as described in `KeyboardState`).
  *
- * These key events are triggered globally, thus on the global Crafty instance, every entity and system.
+ * These key events are triggered globally, thus on the global Qrafty instance, every entity and system.
  *
  * @example
  * Move viewport by arrow keys.
  * ~~~
- * Crafty.bind('KeyDown', function(e) {
- *     if (e.key === Crafty.keys.LEFT_ARROW) {
- *         Crafty.viewport.x++;
- *     } else if (e.key === Crafty.keys.RIGHT_ARROW) {
- *         Crafty.viewport.x--;
- *     } else if (e.key === Crafty.keys.UP_ARROW) {
- *         Crafty.viewport.y++;
- *     } else if (e.key === Crafty.keys.DOWN_ARROW) {
- *         Crafty.viewport.y--;
+ * Qrafty.bind('KeyDown', function(e) {
+ *     if (e.key === Qrafty.keys.LEFT_ARROW) {
+ *         Qrafty.viewport.x++;
+ *     } else if (e.key === Qrafty.keys.RIGHT_ARROW) {
+ *         Qrafty.viewport.x--;
+ *     } else if (e.key === Qrafty.keys.UP_ARROW) {
+ *         Qrafty.viewport.y++;
+ *     } else if (e.key === Qrafty.keys.DOWN_ARROW) {
+ *         Qrafty.viewport.y--;
  *     }
  * });
  * ~~~
  * @see KeyboardState, Keyboard
  */
-Crafty.s("Keyboard", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDispatcher(), {
-    _evt: { // evt object to reuse
-        eventName:'',
-        key: 0,
-        which: 0,
-        originalEvent: null
-    },
+Qrafty.s("Keyboard", Qrafty.extend.call(Qrafty.extend.call(new Qrafty.__eventDispatcher(), {
+	_evt: { // evt object to reuse
+		eventName:"",
+		key: 0,
+		which: 0,
+		originalEvent: null
+	},
 
-    prepareEvent: function (e) {
-        var evt = this._evt;
+	prepareEvent: function (e) {
+		var evt = this._evt;
 
-        // Normalize event name
-        var type = e.type;
-        evt.eventName = type === "keydown" ? "KeyDown" :
-                        type === "keyup" ? "KeyUp" : type;
+		// Normalize event name
+		var type = e.type;
+		evt.eventName = type === "keydown" ? "KeyDown" :
+			type === "keyup" ? "KeyUp" : type;
 
-        // Normalize key to avoid cross-browser issues
-        evt.which = e.charCode !== null ? e.charCode : e.keyCode;
-        evt.key = e.keyCode || e.which;
+		// Normalize key to avoid cross-browser issues
+		evt.which = e.charCode !== null ? e.charCode : e.keyCode;
+		evt.key = e.keyCode || e.which;
 
-        // wrap original event into standard Crafty event object
-        // as original key event's properties are read-only
-        evt.originalEvent = e;
+		// wrap original event into standard Qrafty event object
+		// as original key event's properties are read-only
+		evt.originalEvent = e;
 
-        return evt;
-    },
+		return evt;
+	},
 
-    // this method will be called by KeyboardState iff triggerKey event was valid
-    triggerKeyEvent: function (eventName, e) {
-        Crafty.trigger(eventName, e);
-    },
+	// this method will be called by KeyboardState iff triggerKey event was valid
+	triggerKeyEvent: function (eventName, e) {
+		Qrafty.trigger(eventName, e);
+	},
 
-    dispatchEvent: function (e) {
-        var evt = this.prepareEvent(e);
-        this.triggerKey(evt.eventName, evt);
-    }
-}), Crafty.__keyboardStateTemplate), {}, false);
+	dispatchEvent: function (e) {
+		var evt = this.prepareEvent(e);
+		this.triggerKey(evt.eventName, evt);
+	}
+}), Qrafty.__keyboardStateTemplate), {}, false);
 
 
 /**@
@@ -84,17 +85,17 @@ Crafty.s("Keyboard", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDis
  *
  * @example
  * ~~~
- * Crafty.e("2D, DOM, Color, Keyboard")
+ * Qrafty.e("2D, DOM, Color, Keyboard")
  *   .attr({x: 100, y: 100, w: 50, h: 50})
  *   .color("red")
  *   .bind('KeyDown', function(e) {
- *     if (e.key == Crafty.keys.LEFT_ARROW) {
+ *     if (e.key == Qrafty.keys.LEFT_ARROW) {
  *       this.x -= 1;
- *     } else if (e.key == Crafty.keys.RIGHT_ARROW) {
+ *     } else if (e.key == Qrafty.keys.RIGHT_ARROW) {
  *       this.x += 1;
- *     } else if (e.key == Crafty.keys.UP_ARROW) {
+ *     } else if (e.key == Qrafty.keys.UP_ARROW) {
  *       this.y -= 1;
- *     } else if (e.key == Crafty.keys.DOWN_ARROW) {
+ *     } else if (e.key == Qrafty.keys.DOWN_ARROW) {
  *       this.y += 1;
  *     }
  *   });
@@ -102,9 +103,9 @@ Crafty.s("Keyboard", Crafty.extend.call(Crafty.extend.call(new Crafty.__eventDis
  *
  * @see KeyboardState, KeyboardSystem
  */
-Crafty.c("Keyboard", {
-    // DEPRECATED: remove in an upcoming release
-    isDown: function(key) {
-        return Crafty.s('Keyboard').isKeyDown(key);
-    }
+Qrafty.c("Keyboard", {
+	// DEPRECATED: remove in an upcoming release
+	isDown: function(key) {
+		return Qrafty.s("Keyboard").isKeyDown(key);
+	}
 });
