@@ -4,15 +4,18 @@
   "description": "",
   "main": "src/qrafty.js",
   "scripts": {
-    "build": "npm run build:dev",
-    "build:dev": "export NODE_ENV=development; webpack",
-    "build:release": "export NODE_ENV=production; webpack",
+    "build": "webpack",
     "eslint": "npx eslint --fix ./src"
   },
-  "keywords": ["game", "engine", "2d"],
+  "keywords": [
+    "game",
+    "engine",
+    "2d"
+  ],
   "author": "rubybb <https://github.com/rubybb/>",
   "license": "MIT",
   "dependencies": {
+    "@actions/core": "^1.2.6",
     "eslint": "^7.13.0",
     "string-replace-loader": "^2.3.0",
     "webpack": "^5.4.0",

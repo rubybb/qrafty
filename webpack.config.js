@@ -1,26 +1,26 @@
 const path = require("path");
-//const webpack = require("webpack");
+const core = require("@actions/core");
 const dist = path.resolve(__dirname, "dist");
 const fs = require("fs");
 
 const name = "qrafty";
 
 const generate = () => {
-	const dev = process.env.NODE_ENV !== "production";
+	const dev = process.env.GITHUB_ACTIONS ? !process.env.GITHUB_REF.includes("release") : true;
+	const type = dev ? "dev" : "release";
+
+	const version = process.env.GITHUB_SHA?.slice(0, 10) || 0;
+	const on = process.env["npm_config_user_agent"];
 	const when = new Date();
 
-	let previous = JSON.parse(fs.readFileSync(path.resolve(dist, "build.json"), "utf8"));
+	const filename = `${name}@${version}-${type}.js`;
 
-	let type = dev ? "dev" : "release";
-	let version = dev ? previous.version : previous.version + 1;
-	let filename = dev ? `${name}@${type}.js` : `${name}@${type}:${version}.js`;
-	let total = previous.total + 1;
-
-	return {dev, type, filename, when, version, total};
+	return {dev, type, filename, when, on, version};
 };
 
 const build = generate();
-fs.writeFileSync(path.resolve(dist, "build.json"), JSON.stringify(build, null, 2));
+Object.keys(build).map(key => core.setOutput(key, build[key]));
+console.log(JSON.stringify(build, null, 2));
 
 Object.assign(process.env, {
 	BUILD_VERSION: build.version,
